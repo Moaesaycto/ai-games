@@ -10,7 +10,7 @@ const Header = () => {
             <h1 className="font-bold text-white hover:text-white">
               AI Course Directory
             </h1>
-            <h2 className="opacity-90 text-2xl italic text-white hover:text-white">
+            <h2 className="opacity-90 text-xl italic text-white hover:text-white">
               Portal to all the games and sites for the course
             </h2>
           </div>

@@ -6,7 +6,7 @@ type PageProps = {
 
 const Page = ({ children }: PageProps) => {
     return (
-        <div className="w-full text-left px-10 py-5 text-xl">
+        <div className="w-full text-left px-10 py-5 text-lg">
             {children}
         </div>
     )

@@ -10,13 +10,13 @@ export const Title = ({ children, level }: TitleProps) => {
   let styling = ""
   switch (level) {
     case 1:
-      styling = "text-5xl font-bold border-b pb-3 my-5";
+      styling = "text-3xl font-bold border-b pb-3 my-5 w-full";
       break;
     case 2:
-      styling = "text-3xl font-bold my-5 mt-10 underline";
+      styling = "text-2xl font-bold my-5 mt-10 underline";
       break;
     default:
-      styling = "text-2xl font-bold my-5";
+      styling = "text-1xl font-bold my-5";
   }
 
   return (
@@ -46,7 +46,7 @@ type InstructionsProps = {
 
 export const Instructions = ({ children }: InstructionsProps) => {
   return (
-    <div className="bg-amber-200 p-5 rounded border-l-amber-500 border-l-8 text-zinc-900 mb-5">
+    <div className="bg-amber-200 px-5 py-2 rounded border-l-amber-500 border-l-8 text-zinc-900 mb-5">
       {children}
     </div>
   )
@@ -58,7 +58,7 @@ type WarningProps = {
 
 export const Warning = ({ children }: WarningProps) => {
   return (
-    <div className="bg-red-200 p-5 rounded border-l-red-500 border-l-8 text-zinc-900 mb-5">
+    <div className="bg-red-200 px-5 py-2 rounded border-l-red-500 border-l-8 text-zinc-900 mb-5">
       {children}
     </div>
   )
@@ -71,7 +71,7 @@ type ReferenceProps = {
 
 export const Reference = ({ children }: ReferenceProps) => {
   return (
-    <div className="bg-violet-200 p-5 rounded border-l-violet-500 border-l-8 text-zinc-900 mb-5">
+    <div className="bg-violet-200 px-5 py-2 rounded border-l-violet-500 border-l-8 text-zinc-900 mb-5">
       {children}
     </div>
   )

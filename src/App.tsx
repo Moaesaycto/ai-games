@@ -4,8 +4,9 @@ import HelpPage from '@/pages/HelpPage';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 
 import './App.css'
-import HomePage from './pages/HomePage';
-import NotFoundPage from './pages/NotFoundPage';
+import HomePage from '@/pages/HomePage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import ActivityPage from '@/pages/ActivityPage';
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
           <main className="flex-1 bg-neutral-700">
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<div>Hello, about</div>} />
+              <Route path="/activities" element={<ActivityPage />} />
               <Route path="/help" element={<HelpPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
