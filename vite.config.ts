@@ -15,4 +15,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+
+  base: '/ai-games/',
+  build: { outDir: 'dist' }
 })
