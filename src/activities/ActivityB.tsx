@@ -295,6 +295,17 @@ const ActivityB: React.FC = () => {
   const charArray = useMemo(() => target.split(""), [target]);
   const letterCount = useMemo(() => countLetters(target), [target]);
 
+  const hasUnrevealedLetters = useMemo(
+    () => charArray.some((ch, i) => /[A-Z]/.test(ch) && !revealed[i]),
+    [charArray, revealed]
+  );
+
+  useEffect(() => {
+    if (status === "running" && !hasUnrevealedLetters) {
+      loseRound();
+    }
+  }, [status, hasUnrevealedLetters]);
+
   const masked = useMemo(() => {
     if (!target) return "";
     return charArray
@@ -321,6 +332,7 @@ const ActivityB: React.FC = () => {
   const begin = (d?: Difficulty) => {
     const diff = d ?? selectedDifficulty;
     setDifficulty(diff);
+    setSelectedDifficulty(diff);
 
     const w = sample(WORD_BANK[diff]);
     setTarget(w);
