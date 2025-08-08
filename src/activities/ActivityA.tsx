@@ -365,7 +365,7 @@ const ActivityA: React.FC = () => {
 
 
         {/* Dev helper: reveal internal ceiling X while running */}
-        <div className="mt-2 text-xs text-gray-400">Ceiling now: {isRunning ? computeX(Date.now() - startMsRef.current, bombDelayMsRef.current) : ""}</div>
+        {/* <div className="mt-2 text-xs text-gray-400">Ceiling now: {isRunning ? computeX(Date.now() - startMsRef.current, bombDelayMsRef.current) : ""}</div> */}
       </div>
       <div>
 
