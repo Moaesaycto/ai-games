@@ -429,7 +429,7 @@ const ActivityB: React.FC = () => {
 
   // UI helpers
   const renderMaskedWord = () => (
-    <div className={`mt-2 select-none tabular-nums text-6xl font-extrabold text-black ${isRunning ? "animate-pulse" : ""}`}>
+    <div className={`mt-2 select-none tabular-nums text-6xl font-extrabold text-black`}>
       {masked || ""}
     </div>
   );
