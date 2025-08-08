@@ -22,7 +22,7 @@ const HomePage = () => {
           title="Go to Activity Page"
           subtitle="Activities will be available here. Be sure to have your code ready!"
           color="#4CAF50"
-          link="/#/activities"
+          link="/ai-games/#/activities"
           suppressWarning
           openInNewTab={false}
         />
