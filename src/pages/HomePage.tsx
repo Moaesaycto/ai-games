@@ -48,7 +48,7 @@ const HomePage = () => {
           title="Website Source Code"
           subtitle="Source code for this website"
           color="#010409"
-          link="https://github.com/Moaesaycto/ai-course"
+          link="https://github.com/Moaesaycto/ai-games"
         />
       </div>
       <Title level={1}>
