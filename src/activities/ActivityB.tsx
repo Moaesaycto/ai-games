@@ -613,7 +613,7 @@ const ActivityB: React.FC = () => {
           </div>
           <button
             onClick={resetSession}
-            className="rounded-2xl bg-gray-200 px-4 py-3 text-gray-800 font-medium hover:bg-gray-300"
+            className="rounded-2xl bg-red-800 px-4 py-1 text-gray-100 font-medium hover:bg-gray-300"
           >
             Reset session
           </button>

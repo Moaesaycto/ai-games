@@ -41,7 +41,7 @@ const HomePage = () => {
           title="YouTube Playlist"
           subtitle="All of the YouTube videos referenced in the course"
           color="#ff0000"
-          link="https://www.youtube.com/"
+          link="https://www.youtube.com/watch?v=Sq1QZB5baNw&list=PLqloigyYltZzZeciSlnsrhIZrgsOuXSJ0&pp=gAQB"
         />
         <IconButton
           icon={<FaGithub size={40} />}
