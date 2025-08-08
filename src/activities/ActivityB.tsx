@@ -580,8 +580,8 @@ const ActivityB: React.FC = () => {
                     className={`rounded-2xl px-3 py-2 text-sm font-semibold shadow ${d === "easy"
                       ? "bg-emerald-600 text-white"
                       : d === "medium"
-                        ? "bg-blue-600 text-white"
-                        : "bg-purple-600 text-white"
+                        ? "bg-yellow-600 text-white"
+                        : "bg-red-800 text-white"
                       }`}
                   >
                     {d[0].toUpperCase() + d.slice(1)}
