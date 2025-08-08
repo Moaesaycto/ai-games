@@ -448,7 +448,7 @@ const ActivityB: React.FC = () => {
       <div className="mx-auto w-full">
         {/* Header */}
         <div className="flex items-center justify-between gap-2">
-          <Title level={1}>Activity 2 | Word Guesser</Title>
+          <Title level={1}>Word Guesser</Title>
         </div>
 
         <Paragraph>

@@ -191,13 +191,13 @@ const ActivityA: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between gap-2">
           <Title level={1}>
-            Activity 1 | Beat the Bomb
+            Beat the Bomb
           </Title>
         </div>
 
         <Paragraph>
           This game was inspired by the old Australian radio game show "Beat the Bomb", which aired in the 1980s on stations like 2UW and 3UZ, this game
-          challenges players to stop the clock before a hidden "bomb" sound effect goes off—banking the last safe amount they saw, or losing it all if they wait too long.
+          challenges players to stop the clock before a hidden "bomb" sound effect goes off; banking the last safe amount they saw, or losing it all if they wait too long.
         </Paragraph>
 
         <Instructions>
