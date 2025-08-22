@@ -50,6 +50,8 @@ import { motion } from "framer-motion";
   return img;
  }
 
+void toImageData
+
  function mse(a: NumGrid, b: NumGrid): number {
   const h = a.length, w = a[0].length;
   let s = 0;

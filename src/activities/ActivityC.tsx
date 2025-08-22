@@ -391,6 +391,7 @@ const PixelGrid: React.FC<{
     cell?: number;
 }> = ({ grid, alt, cell = 18 }) => {
     const H = grid.length, W = grid[0].length;
+    void H
     return (
         <div className="inline-block">
             <div
@@ -420,6 +421,7 @@ const HeatmapGrid: React.FC<{
     cell?: number;
 }> = ({ a, b, cell = 18 }) => {
     const H = a.length, W = a[0].length;
+    void H
     return (
         <div className="inline-block">
             <div className="grid rounded-xl border bg-white overflow-hidden" style={{ gridTemplateColumns: `repeat(${W}, ${cell}px)` }}>
