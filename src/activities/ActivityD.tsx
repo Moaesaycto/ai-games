@@ -52,7 +52,7 @@ import { motion } from "framer-motion";
   return img;
  }
 
-// void toImageData
+void toImageData
 
  function mse(a: NumGrid, b: NumGrid): number {
   const h = a.length, w = a[0].length;
@@ -255,6 +255,7 @@ const KERNELS = {
       // Save current bitmap to preserve drawing
       const oldCtx = c.getContext("2d")!;
       const oldTransform = oldCtx.getTransform();
+      void oldTransform
       oldCtx.setTransform(1,0,0,1,0,0);
       const oldBmp = document.createElement("canvas");
       oldBmp.width = c.width; oldBmp.height = c.height;
