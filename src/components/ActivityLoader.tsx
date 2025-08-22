@@ -7,12 +7,16 @@ import {
 } from "react";
 import ActivityA from "@/activities/ActivityA";
 import ActivityB from "@/activities/ActivityB";
+import ActivityC from "@/activities/ActivityC";
+import ActivityD from "@/activities/ActivityD";
 
 // Map from component-name string to either a component type or a prebuilt element.
 // (Handles both normal component exports and accidental JSX default exports.)
 const componentMap: Record<string, ComponentType<any> | ReactElement> = {
   ActivityA,
   ActivityB,
+  ActivityC,
+  ActivityD,
 };
 
 const parseCodes = (): Record<string, string> => {
