@@ -5,9 +5,11 @@ import { motion } from "framer-motion";
 
 // ======================================================
 // ActivityD — Draw a digit, see a live guess + the guts
-// Now with: HiDPI-correct canvas, unified PointerEvents,
-// faster preprocessing via scratch canvases, safer math,
-// fewer re-renders, and small UX/accessibility tweaks.
+// Fixes:
+//  - Correct pointer→canvas mapping (CSS px, not backing px)
+//  - Overlay bbox draws in CSS space
+//  - Responsive, DPR-safe canvas sizing with ResizeObserver
+//  - Keeps drawings across resizes
 // ======================================================
 
 // ---------- Types
@@ -28,7 +30,7 @@ import { motion } from "framer-motion";
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
-      // luma (rec. 601) is nicer than a flat average and free
+      // luma (rec. 601)
       const v = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255; // [0,1], white≈1
       out[y][x] = invert ? 1 - v : v;  // ink ~1
     }
@@ -50,7 +52,7 @@ import { motion } from "framer-motion";
   return img;
  }
 
-void toImageData
+// void toImageData
 
  function mse(a: NumGrid, b: NumGrid): number {
   const h = a.length, w = a[0].length;
@@ -163,8 +165,7 @@ const KERNELS = {
  }
 
  // ---------- HiDPI-aware canvas setup
- function setupCanvas(c: HTMLCanvasElement, cssSize: number) {
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
+ function setupCanvas(c: HTMLCanvasElement, cssSize: number, dpr: number) {
   c.style.width = `${cssSize}px`;
   c.style.height = `${cssSize}px`;
   c.width = Math.floor(cssSize * dpr);
@@ -176,9 +177,14 @@ const KERNELS = {
 
  // ---------- Preprocess drawing to MNIST-like 28×28 using scratch canvases
  function preprocessTo28x28(source: HTMLCanvasElement, scratchCrop: HTMLCanvasElement, scratchOut: HTMLCanvasElement): { grid: NumGrid; bbox: {x:number;y:number;w:number;h:number}|null } {
-  const w = source.width, h = source.height;
+  const w = source.width, h = source.height; // backing px
   const ctx = source.getContext("2d")!;
+  // operate in backing pixels
+  const prev = ctx.getTransform();
+  ctx.setTransform(1,0,0,1,0,0);
   const img = ctx.getImageData(0,0,w,h);
+  ctx.setTransform(prev.a, prev.b, prev.c, prev.d, prev.e, prev.f);
+
   const gray = fromImageDataToGray(img, true); // ink≈1, bg≈0
   // threshold lightly to find bounding box
   let minx=w, miny=h, maxx=-1, maxy=-1;
@@ -193,7 +199,6 @@ const KERNELS = {
   scratchCrop.width = sw; scratchCrop.height = sh;
   const cctx = scratchCrop.getContext("2d")!;
   cctx.imageSmoothingEnabled = true; cctx.imageSmoothingQuality = "high";
-  // drawImage uses source pixels; compensate for any transform by resetting
   cctx.setTransform(1,0,0,1,0,0);
   cctx.clearRect(0,0,sw,sh);
   cctx.drawImage(source, minx, miny, bw, bh, 0, 0, sw, sh);
@@ -222,7 +227,8 @@ const KERNELS = {
 
  // ---------- Main component
  const ActivityD: React.FC = () => {
-  const CSS_CANVAS_SIZE = 280; // 10× MNIST (CSS pixels)
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [cssCanvasSize, setCssCanvasSize] = useState<number>(280); // responsive
   const [grid28, setGrid28] = useState<NumGrid>(() => zeros(H28, W28));
   const [preds, setPreds] = useState<Pred[]>([]);
   const [topProto, setTopProto] = useState<NumGrid | null>(null);
@@ -233,22 +239,68 @@ const KERNELS = {
   const scratchOutRef = useRef<HTMLCanvasElement | null>(null);
   const drawing = useRef(false);
   const [brush, setBrush] = useState(22);
+  const dprRef = useRef<number>(Math.max(1, window.devicePixelRatio || 1));
 
-  // Build prototypes once (memo, not state -> fewer renders)
+  // Build prototypes once
   const protos = useMemo(() => buildPrototypeBank(), []);
 
-  // HiDPI-aware initialisation
+  // Responsive / DPR-aware initialisation & resizing
   useEffect(() => {
     const c = drawRef.current; if (!c) return;
     const overlay = overlayRef.current!;
-    const ctx = setupCanvas(c, CSS_CANVAS_SIZE);
-    setupCanvas(overlay, CSS_CANVAS_SIZE);
-    ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000"; ctx.lineWidth = brush; ctx.fillStyle = "#fff";
-    ctx.fillRect(0,0,c.width,c.height);
 
-    // scratch canvases live off-DOM
+    const applySize = (size: number) => {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      dprRef.current = dpr;
+      // Save current bitmap to preserve drawing
+      const oldCtx = c.getContext("2d")!;
+      const oldTransform = oldCtx.getTransform();
+      oldCtx.setTransform(1,0,0,1,0,0);
+      const oldBmp = document.createElement("canvas");
+      oldBmp.width = c.width; oldBmp.height = c.height;
+      (oldBmp.getContext("2d")!).drawImage(c, 0, 0);
+      // Reconfigure canvases
+      const ctx = setupCanvas(c, size, dpr);
+      setupCanvas(overlay, size, dpr);
+      // Restore drawing scaled to new backing store
+      ctx.drawImage(oldBmp, 0, 0, oldBmp.width, oldBmp.height, 0, 0, c.width, c.height);
+      // Stylings
+      ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000"; ctx.lineWidth = brush; ctx.fillStyle = "#fff";
+      // ensure white background if blank
+      // (no-op if already drawn)
+    };
+
+    // Initial size
+    applySize(cssCanvasSize);
+
+    // ResizeObserver to follow container width
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const width = Math.floor(entry.contentRect.width);
+      const size = Math.max(180, Math.min(440, width));
+      if (size !== cssCanvasSize) {
+        setCssCanvasSize(size);
+        applySize(size);
+      }
+    });
+    if (containerRef.current) ro.observe(containerRef.current);
+
+    // DPR change listener
+    const mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+    const onDprChange = () => applySize(cssCanvasSize);
+    // Some browsers don't fire; also listen to window resize
+    window.addEventListener("resize", onDprChange);
+
+    // scratch canvases off-DOM
     scratchCropRef.current = document.createElement("canvas");
     scratchOutRef.current = document.createElement("canvas");
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", onDprChange);
+      mq.removeEventListener?.("change", onDprChange);
+      // no cleanup needed for scratch
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -257,12 +309,11 @@ const KERNELS = {
     const c = drawRef.current; if (!c) return; c.getContext("2d")!.lineWidth = brush;
   }, [brush]);
 
-  // Pointer helpers (unified PointerEvents)
+  // Pointer helpers (use CSS pixels; ctx is scaled by DPR)
   const getPos = (e: PointerEvent, el: HTMLCanvasElement) => {
     const rect = el.getBoundingClientRect();
-    // account for CSS scaling vs backing store via currentTransform
-    const x = ((e.clientX - rect.left) / rect.width) * el.width;
-    const y = ((e.clientY - rect.top) / rect.height) * el.height;
+    const x = e.clientX - rect.left; // CSS px
+    const y = e.clientY - rect.top;  // CSS px
     return { x, y };
   };
 
@@ -291,10 +342,17 @@ const KERNELS = {
     const out = scratchOutRef.current!;
     const { grid, bbox } = preprocessTo28x28(drawRef.current, crop, out);
     setGrid28(grid);
-    // bbox overlay draw
+    // bbox overlay draw — use CSS coords
     const ov = overlayRef.current; if (ov) {
-      const octx = ov.getContext("2d")!; octx.clearRect(0,0,ov.width,ov.height);
-      if (bbox) { octx.strokeStyle = "rgba(0,0,0,0.35)"; octx.lineWidth = 2; octx.strokeRect(bbox.x, bbox.y, bbox.w, bbox.h); }
+      const dpr = dprRef.current;
+      const octx = ov.getContext("2d")!;
+      octx.clearRect(0,0,ov.width,ov.height);
+      if (bbox) {
+        // Work in CSS space by dividing by dpr
+        const x = bbox.x / dpr, y = bbox.y / dpr, w = bbox.w / dpr, h = bbox.h / dpr;
+        octx.strokeStyle = "rgba(0,0,0,0.35)"; octx.lineWidth = 2;
+        octx.strokeRect(x, y, w, h);
+      }
     }
     // Classify via prototype MSE
     const dists: number[] = new Array(10).fill(1e9);
@@ -307,7 +365,7 @@ const KERNELS = {
         if (dist < bestDist) { bestDist = dist; bestGrid = p.grid; }
       }
     }
-    // temperature auto-tune: sharper if confident, softer if not
+    // temperature auto-tune
     const spread = Math.max(1e-9, Math.max(...dists) - Math.min(...dists));
     const alpha = Math.min(120, Math.max(30, 60 / Math.sqrt(spread + 1e-9)));
     const logits = dists.map((dd) => -alpha * dd);
@@ -399,7 +457,7 @@ const KERNELS = {
                 <button onClick={clear} className="rounded-xl bg-red-700 px-3 py-1.5 text-white text-sm font-semibold shadow hover:bg-red-800">Clear</button>
               </div>
             </div>
-            <div className="relative mt-2">
+            <div ref={containerRef} className="relative mt-2">
               <canvas
                 ref={drawRef}
                 className="touch-none rounded-xl border shadow-sm bg-white"
@@ -483,7 +541,7 @@ const KERNELS = {
         </div>
 
         <motion.div className="mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          Note: this is a didactic, transparent classifier (prototype matching + simple conv visualisations), not a trained CNN. It’s robust enough for most handwriting, but if it struggles try writing larger, with a single stroke, and centred.
+          Note: this is a didactic, transparent classifier (prototype matching + simple conv visualisations), not a trained CNN. It's robust enough for most handwriting, but if it struggles try writing larger, with a single stroke, and centred.
         </motion.div>
       </div>
     </Activity>
