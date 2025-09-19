@@ -110,8 +110,8 @@ const ActivityE = () => {
           Your drawings will directly be used to train the AI model, so make sure you are drawing it carefully and accurately.
         </Paragraph>
       </div>
-      <div ref={wrapRef} className="w-full max-w-md mx-auto p-4 grid gap-3">
-        <h2 className="text-lg font-semibold">Draw a {prompt}</h2>
+      <div className="flex flex-col gap-6 items-center">
+        <h2 className="text-4xl font-semibold">Draw a {prompt}</h2>
         <SignatureCanvas
           ref={sigRef}
           penColor="#000"
@@ -123,7 +123,8 @@ const ActivityE = () => {
             style: { width: `${size.w}px`, height: `${size.h}px` }
           }}
         />
-        <div className="flex gap-2 justify-between">
+        {msg && <p className="text-xs opacity-80">{msg}</p>}
+        <div className="w-full flex gap-2 justify-between">
           <button onClick={upload} disabled={uploading} className="px-3 py-1 border rounded">
             {uploading ? "Submitting..." : "Submit"}
           </button>
@@ -132,7 +133,6 @@ const ActivityE = () => {
             <span>Clear</span>
           </button>
         </div>
-        {msg && <p className="text-xs opacity-80">{msg}</p>}
       </div>
     </Activity>
   );
