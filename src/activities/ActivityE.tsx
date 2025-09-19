@@ -1,5 +1,5 @@
 import Activity from "@/components/Activity";
-import { Instructions, LI, Paragraph, Title, UL } from "@/components/Text";
+import { Instructions, LI, Paragraph, Title, UL, Warning } from "@/components/Text";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
@@ -123,7 +123,7 @@ const ActivityE = () => {
             style: { width: `${size.w}px`, height: `${size.h}px` }
           }}
         />
-        {msg && <p className="text-xs opacity-80">{msg}</p>}
+        {msg && <p className="text-md opacity-80">{msg}</p>}
         <div className="w-full flex gap-2 justify-between">
           <button onClick={upload} disabled={uploading} className="px-3 py-1 border rounded">
             {uploading ? "Submitting..." : "Submit"}
@@ -134,6 +134,10 @@ const ActivityE = () => {
           </button>
         </div>
       </div>
+      <div className="h-10" />
+      <Warning>
+        None of the drawings provided in this activity will be kept beyond the duration of the course. For the lesson, all drawings will be stored securely.
+      </Warning>
     </Activity>
   );
 }
