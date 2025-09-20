@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 const GAS_URL = (import.meta as any).env.VITE_GAS_URL;
-const PROMPTS = ["chicken", "bee", "cat", "dog"] as const;
+const PROMPTS = ["bird", "bee", "cat", "dog"] as const;
 
 const ActivityE = () => {
   const sigRef = useRef<SignatureCanvas>(null);
