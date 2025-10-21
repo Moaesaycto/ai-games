@@ -15,19 +15,17 @@ import { Instructions, LI, Paragraph, Title, UL, Warning } from "@/components/Te
 // - Win if MSE < threshold before T steps; else loss at T.
 // - Shows side-by-side grids, delta heatmap, σ schedule progress, PSNR/MSE.
 
-// ---- Config ----
 const CONFIG = {
     H: 16,
     W: 16,
     steps: 12,
     etaDefault: 0.25,
     guideDefault: 0.55, // guidance γ
-    winMSE: 0.010, // lower is better; ≈ PSNR > 20 dB for 8-bit range normalised
+    winMSE: 0.010, // lower is better; ~ PSNR > 20 dB for 8-bit range normalised
     autoMinMs: 200,
     autoMaxMs: 1200,
 } as const;
 
-// ---- Types ----
 type Status = "idle" | "running" | "won" | "lost";
 type KernelName =
     | "Blur"
@@ -79,7 +77,7 @@ const PRESETS: Record<string, Preset> = {
     },
 };
 
-// ---- Math helpers ----
+// Math helpers
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const randn = (() => {
     // Box–Muller, cached
@@ -195,7 +193,7 @@ function linspace(a: number, b: number, n: number) {
     return arr;
 }
 
-// ---- Kernels ----
+// Kernels
 const KERNELS: Record<KernelName, number[][]> = {
     Blur: [
         [1 / 16, 2 / 16, 1 / 16],
@@ -234,7 +232,7 @@ const KERNELS: Record<KernelName, number[][]> = {
     ],
 };
 
-// ---- Target sprites (16x16) ----
+// Target sprites (16x16)
 // Encoded as strings of '.' (0) and '#' (1); then lightly blurred for anti-alias.
 const SPRITES: { name: string; s: string[] }[] = [
     {
@@ -384,7 +382,7 @@ function randomNoise(H: number, W: number) {
     return out;
 }
 
-// ---- UI subcomponents ----
+// UI subcomponents
 const PixelGrid: React.FC<{
     grid: number[][];
     alt?: string;
@@ -438,7 +436,7 @@ const HeatmapGrid: React.FC<{
     );
 };
 
-// ---- Main Component ----
+
 const ActivityC: React.FC = () => {
     const [status, setStatus] = useState<Status>("idle");
     const [targetIdx, setTargetIdx] = useState(0);
