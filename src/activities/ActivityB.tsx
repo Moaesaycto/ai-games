@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Instructions, LI, Paragraph, Title, UL } from "@/components/Text";
 
-// --- Types ---
 type Status = "idle" | "running" | "won" | "lost";
 type Difficulty = "easy" | "medium" | "hard";
 
@@ -18,7 +17,6 @@ type GameRecord = {
   hintsUsed: number;
 };
 
-// --- Word banks ---
 const WORD_BANK: Record<Difficulty, string[]> = {
   easy: [
     "APPLE",
@@ -275,7 +273,6 @@ const normalise = (s: string) => s.replace(/[^A-Z]/gi, "").toUpperCase();
 const countLetters = (s: string) => (s.match(/[A-Z]/gi) || []).length;
 
 const ActivityB: React.FC = () => {
-  // --- State ---
   const [status, setStatus] = useState<Status>("idle");
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("medium");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
@@ -328,7 +325,6 @@ const ActivityB: React.FC = () => {
     if (explosionTO.current !== null) window.clearTimeout(explosionTO.current);
   }, []);
 
-  // --- Actions ---
   const begin = (d?: Difficulty) => {
     const diff = d ?? selectedDifficulty;
     setDifficulty(diff);
