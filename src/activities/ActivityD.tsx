@@ -12,11 +12,11 @@ import { motion } from "framer-motion";
 //  - Keeps drawings across resizes
 // ======================================================
 
-// ---------- Types
+// Types
  type NumGrid = number[][]; // row-major [H][W] in [0,1]
  type Pred = { digit: number; prob: number; dist: number };
 
- // ---------- Small image utils
+ // Small image utils
  const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
  const H28 = 28, W28 = 28;
 
@@ -68,7 +68,7 @@ void toImageData
   return i;
  };
 
- // 3×3 conv with reflect padding (fixed)
+ // 3x3 conv with reflect padding (fixed)
  function convolve3(img: NumGrid, k: number[][]): NumGrid {
   const h = img.length, w = img[0].length;
   const out = zeros(h, w);
@@ -134,7 +134,7 @@ const KERNELS = {
   ]
 };
 
- // ---------- Prototype bank built from canvas-rendered fonts
+ // Prototype bank built from canvas-rendered fonts
  type Proto = { digit: number; grid: NumGrid };
 
  function drawDigitPrototype(d: number, font: string, size: number, dx = 0, dy = 0): NumGrid {
@@ -164,7 +164,7 @@ const KERNELS = {
   return map;
  }
 
- // ---------- HiDPI-aware canvas setup
+ // HiDPI-aware canvas setup
  function setupCanvas(c: HTMLCanvasElement, cssSize: number, dpr: number) {
   c.style.width = `${cssSize}px`;
   c.style.height = `${cssSize}px`;
@@ -175,7 +175,7 @@ const KERNELS = {
   return ctx;
  }
 
- // ---------- Preprocess drawing to MNIST-like 28×28 using scratch canvases
+ // Preprocess drawing to MNIST-like 28x28 using scratch canvases
  function preprocessTo28x28(source: HTMLCanvasElement, scratchCrop: HTMLCanvasElement, scratchOut: HTMLCanvasElement): { grid: NumGrid; bbox: {x:number;y:number;w:number;h:number}|null } {
   const w = source.width, h = source.height; // backing px
   const ctx = source.getContext("2d")!;
@@ -185,7 +185,7 @@ const KERNELS = {
   const img = ctx.getImageData(0,0,w,h);
   ctx.setTransform(prev.a, prev.b, prev.c, prev.d, prev.e, prev.f);
 
-  const gray = fromImageDataToGray(img, true); // ink≈1, bg≈0
+  const gray = fromImageDataToGray(img, true); // ink ~= 1, bg ~= 0
   // threshold lightly to find bounding box
   let minx=w, miny=h, maxx=-1, maxy=-1;
   for (let y=0;y<h;y++) for (let x=0;x<w;x++) if (gray[y][x] > 0.08) { minx=Math.min(minx,x); miny=Math.min(miny,y); maxx=Math.max(maxx,x); maxy=Math.max(maxy,y); }
@@ -214,7 +214,7 @@ const KERNELS = {
   return { grid, bbox: { x:minx, y:miny, w:bw, h:bh } };
  }
 
- // ---------- Pixel grid for visualisation
+ // Pixel grid for visualisation
  const PixelGrid: React.FC<{ grid: NumGrid; alt?: string; cell?: number }> = ({ grid, alt, cell = 12 }) => (
   <div className="inline-block">
     <div className="grid rounded-xl border bg-white overflow-hidden" style={{ gridTemplateColumns: `repeat(${grid[0].length}, ${cell}px)` }} aria-label={alt} role="img">
@@ -225,7 +225,7 @@ const KERNELS = {
   </div>
  );
 
- // ---------- Main component
+ // Main component
  const ActivityD: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [cssCanvasSize, setCssCanvasSize] = useState<number>(280); // responsive
@@ -434,15 +434,15 @@ const KERNELS = {
           <Title level={1}>Draw a Digit</Title>
         </div>
         <Paragraph>
-          Sketch any digit (0–9). The model centres and shrinks your drawing to a 28×28 patch (MNIST-style), compares it to a bank of digit prototypes, and updates the guess in real time. Side panels show classic conv filters (Sobel/Laplacian/Blur) and pooled maps so you can see what features light up.
+          Sketch any digit (0–9). The model centres and shrinks your drawing to a 28x28 patch (MNIST-style), compares it to a bank of digit prototypes, and updates the guess in real time. Side panels show classic conv filters (Sobel/Laplacian/Blur) and pooled maps so you can see what features light up.
         </Paragraph>
 
         <Instructions>
           How it works
           <UL>
-            <LI><strong>Preprocess:</strong> we crop your ink, scale longest side to 20px, and centre into 28×28.</LI>
+            <LI><strong>Preprocess:</strong> we crop your ink, scale longest side to 20px, and centre into 28x28.</LI>
             <LI><strong>Classify:</strong> template-matching vs many font-rendered prototypes; softmax over MSE gives probabilities (auto temperature).</LI>
-            <LI><strong>Visualise:</strong> 3×3 conv filters highlight edges and blobs; 2×2 max-pool shows downsampled features.</LI>
+            <LI><strong>Visualise:</strong> 3x3 conv filters highlight edges and blobs; 2x2 max-pool shows downsampled features.</LI>
           </UL>
         </Instructions>
 
@@ -488,9 +488,9 @@ const KERNELS = {
               )}
             </div>
 
-            {/* Preprocessed 28×28 + best prototype */}
+            {/* Preprocessed 28x28 + best prototype */}
             <div className="rounded-2xl bg-white p-4 shadow-sm">
-              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Preprocessed (28×28) & Closest Prototype</div>
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Preprocessed (28x28) & Closest Prototype</div>
               <div className="flex items-start gap-6">
                 <div className="flex flex-col items-center gap-1">
                   <div className="text-[11px] text-gray-500">Your input</div>
@@ -526,7 +526,7 @@ const KERNELS = {
                   <PixelGrid grid={feat.blur} cell={8} />
                 </div>
               </div>
-              <div className="mt-4 text-xs uppercase tracking-wide text-gray-500 mb-1">Max-pooled (2×2, stride 2)</div>
+              <div className="mt-4 text-xs uppercase tracking-wide text-gray-500 mb-1">Max-pooled (2x2, stride 2)</div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div className="text-[11px] text-gray-500">Pool(Sobel X)</div>
